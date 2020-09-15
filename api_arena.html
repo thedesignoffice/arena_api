@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The Web &amp; Democracy: Working with an API</title>
+
+    <!--
+      Let's include jQuery on our page!
+      jQuery is a Javascript library that makes it easier to work with JSON and HTML.
+    -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <!--
+      First, let's create a layout for our page.
+    -->
+    <div id="channelHeader">
+    </div>
+
+    <ul id='listOfData'>
+      <!--
+        This is where we will print our data, once we've finished loading it and processing it.
+        We'll create a list of bullet points, where each bullet point looks like this:
+        <li>Some data</li>
+      -->
+    </ul>
+
+
+    <!--
+      Okay, we've finished creating our layout.
+      Now let's write a function that describes how we want to fill in that layout after we load our data.
+      We'll call this function `processData`.
+    -->
+    <script>
+
+      function renderHeader( data ) {
+
+          var header = $('#channelHeader');
+
+          var title = $('<h1>').addClass('channel-title').text( data.title );
+          var author = $('<h3>').addClass('channel-author').text( data.user.full_name );
+
+          header.append( title );
+          header.append( author );
+
+      }
+
+
+      function renderContent( content ) {
+
+          var list = $('#listOfData');
+
+          var li = $('<li>').addClass('content-block').attr('id', 'block-id-' + content.id );
+
+          var title = $('<h4>').addClass('content-title').text( content.title );
+          var connected_by = $('<p>').addClass('connected-by-user').text( content.connected_by_username );
+
+          li.append( title );
+          li.append( connected_by );
+
+          list.append( li );
+
+      }
+
+
+      // What do we want to do once we load the data?
+      function processData( data ){
+        console.log("=== Start Processing Data ===");
+
+        renderHeader( data );
+
+        if ( typeof data.contents !== 'undefined' ) {
+
+            data.contents.forEach( renderContent );
+
+        }
+
+
+        console.log("=== End Processing Data ===");
+      }
+
+    </script>
+
+
+    <!--
+      We've set everything up! All that's left is to load our actual data.
+      Let's fetch our JSON data from the Providence Open Data website.
+    -->
+    <script>
+
+      var URL = "http://api.are.na/v2/channels/flag";
+
+      $.ajax({
+        url: URL
+      }).done( function( data ) {
+
+          console.log("=== API RESULTS ===");
+          console.log( data );
+          console.log( data.contents );
+
+          console.log("=== Start Rendering! ===");
+
+        // When the JSON data finishes loading, this code will get run. What should we do now?
+        // Let's call our function to process the data and print it on the page.
+        processData(data)
+      });
+    </script>
+
+
+    <!--
+      A NICE THING TO KNOW:
+      Alternately, instead of loading the data from another website, we could just include the JSON blob directly
+      in our page. This can be useful if the site that you are loading data from has rate limiting (e.g. "you can
+      only load this data 50 times per day!"), or if you want to test your code with a smaller number of records.
+      To do this, you would replace the JSON-loading code above with the following:
+
+      <script>
+        var data = YOUR_JSON_BLOB_GOES_HERE;
+        processData(data);
+      </script>
+    -->
+  </body>
+</html>
